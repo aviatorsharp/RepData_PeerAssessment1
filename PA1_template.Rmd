@@ -116,5 +116,5 @@ activity3 <-
         summarise(steps = mean(steps))
 ggplot(activity3, aes(interval, steps)) +
         geom_line(col = "chartreuse4", lwd = 0.6) + 
-        facet_grid(.~weekday)
+        facet_grid(weekday~.)
 ```
