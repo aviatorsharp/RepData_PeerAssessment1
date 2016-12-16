@@ -3,8 +3,7 @@
 
 ## Loading and preprocessing the data
 
-### Code for reading in the dataset and/or processing the data
-
+*Load the data (i.e. read.csv()); process/transform the data (if necessary) into a format suitable for your analysis:*
 
 
 ```r
@@ -14,15 +13,17 @@ activity <- read.csv("./data/activity.csv")
 daily <-
         activity %>%
         group_by(date) %>%
-        summarise(steps = sum(steps))
+        summarise(steps = sum(steps)) %>%
+        data.frame()
 timeofday <-
         activity[!is.na(activity[,1]),] %>%
         group_by(interval) %>%
         summarise(steps = mean(steps))
 ```
 
-### Histogram of the total number of steps taken each day
+## What is mean total number of steps taken per day?
 
+*Make a histogram of the total number of steps taken each day:*
 
 
 ```r
@@ -43,23 +44,19 @@ ggplot(daily, aes(steps)) +
 
 ![](PA1_template_files/figure-html/hist-1.png)<!-- -->
 
-
-## What is mean total number of steps taken per day?
+*Calculate and report the mean and median of the total number of steps taken per day:*
 
 
 ```r
-summary(daily$steps)[3:4]
+men <- as.integer(round(mean(daily$steps[!is.na(daily$steps)])))
+med <- median(daily$steps[!is.na(daily$steps)])
 ```
 
-```
-## Median   Mean 
-##  10760  10770
-```
+The mean number of steps taken per day is **10766** and the median is **10765**
 
 ## What is the average daily activity pattern?
 
-### Time series plot of the average number of steps taken
-
+*Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis):*
 
 
 ```r
@@ -72,45 +69,36 @@ ggplot(timeofday, aes(interval, steps)) +
 
 ![](PA1_template_files/figure-html/intervalsteps-1.png)<!-- -->
 
-### The 5-minute interval that, on average, contains the maximum number of steps
-
+*Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?*
 
 
 ```r
-as.double(timeofday[which(timeofday$steps == max(timeofday$steps)),1])
+most <- as.double(timeofday[which(timeofday$steps == max(timeofday$steps)),1])
 ```
 
-```
-## [1] 835
-```
+The 5-minute interval which contains the max number of steps is **835**
 
 ## Imputing missing values
 
-### Code to describe and show a strategy for imputing missing data
-
+*Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs):*
 
 
 ```r
-sum(is.na(activity))
+miss <- sum(is.na(activity))
 ```
 
-```
-## [1] 2304
-```
+Total missing values: **2304**
+
+*Devise a strategy for filling in all of the missing values in the dataset:*
+Missing values will be replaced with the mean number of steps for that paricular interval
+
 
 ```r
-#NA values replaced by the mean number of steps for that particular interval
 activity2 <- activity
 activity2$steps <- replace(activity$steps, is.na(activity$steps), timeofday$steps)
-sum(is.na(activity2))
 ```
 
-```
-## [1] 0
-```
-
-### Histogram of the total number of steps taken each day after missing values are imputed
-
+*Create a new dataset that is equal to the original dataset but with the missing data filled in:*
 
 
 ```r
@@ -118,6 +106,12 @@ daily2 <-
         activity2 %>%
         group_by(date) %>%
         summarise(steps = sum(steps))
+```
+
+*Make a histogram of the total number of steps taken each day:*
+
+
+```r
 ggplot(daily2, aes(steps)) + 
         geom_histogram(breaks = seq(0, 22000, by = 2000), na.rm = TRUE, 
                        fill = heat.colors(11), col = "grey52") +
@@ -127,22 +121,17 @@ ggplot(daily2, aes(steps)) +
 
 ![](PA1_template_files/figure-html/hist2-1.png)<!-- -->
 
-### Mean and Median with and without NAs
+*Calculate and report the mean and median total number of steps taken per day:*
 
+The mean with NAs is: **10766** and the median w/NAs: **10765**  
+The mean w/o NAs is: **10766** and the median w/o NAs is: **10766**
 
-
-```r
-rbind("With NAs" = summary(daily$steps)[3:4], 
-      "Without NAs" = summary(daily2$steps)[3:4])
-```
-
-```
-##             Median  Mean
-## With NAs     10760 10770
-## Without NAs  10770 10770
-```
+*Do these values differ from the estimates from the first part of the assignment?*  
+Not particularly.
 
 ## Are there differences in activity patterns between weekdays and weekends?
+
+*Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis):*
 
 
 ```r
@@ -163,3 +152,4 @@ ggplot(activity3, aes(interval, steps)) +
 ```
 
 ![](PA1_template_files/figure-html/weekday-1.png)<!-- -->
+
